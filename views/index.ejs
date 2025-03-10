@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<%- include('partials/header') %>
+
+  <body>
+    <!-- Navbar -->
+    <%- include('partials/navbar') %>
+
+      <!-- Banner -->
+      <section class="hero is-primary is-medium">
+        <div class="hero-body has-text-centered">
+          <h1 class="title">Explore the world of perfume</h1>
+          <h2 class="subtitle">Luxury - Classy - Personality</h2>
+        </div>
+      </section>
+
+
+      <section class="section">
+        <div class="container">
+          <div class="box">
+            <form id="filterForm" class="columns is-variable is-2 is-multiline is-vcentered">
+              
+              <!-- Search Perfume Name -->
+              <div class="column is-6">
+                <div class="field">
+                  <label class="label">Search Perfume</label>
+                  <div class="control has-icons-left">
+                    <input class="input" type="text" id="perfumeSearch" placeholder="Enter perfume name...">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-search"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+      
+              <!-- Brand Filter -->
+              <div class="column is-4">
+                <div class="field">
+                  <label class="label">Filter by Brand</label>
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="brandFilter">
+                        <option value="">All</option>
+                        <% brands.forEach(brand => { %>
+                          <option value="<%= brand %>" <%= brand === filters.brand ? 'selected' : '' %>><%= brand %></option>
+                        <% }) %>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+      
+            </form>
+          </div>
+        </div>
+      </section>
+      
+
+
+      <!-- Danh sách nước hoa -->
+      <section class="section">
+        <div class="container">
+          <h2 class="title is-4 has-text-centered mb-6">List of Perfumes</h2>
+          <div class="columns is-multiline" id="perfumeList">
+            <% perfumes.forEach(perfume=> { %>
+              <div class="column is-one-quarter perfume-item" data-brand="<%= perfume.brand %>"
+                data-audience="<%= perfume.targetAudience %>">
+                <div class="card">
+                  <div class="card-image">
+                    <figure class="image is-4by3">
+                      <img src="<%= perfume.uri %>" alt="<%= perfume.perfumeName %>">
+                    </figure>
+                  </div>
+                  <div class="card-content">
+                    <p class="title is-5">
+                      <%= perfume.perfumeName %>
+                    </p>
+                    <p><strong>
+                        <%= perfume.brand %>
+                      </strong></p>
+                    <p class="subtitle is-6">
+                      <%= perfume.price.toLocaleString('vi-VN') %> USD
+                    </p>
+                    <p><strong>
+                        <%= perfume.targetAudience %>
+                      </strong></p>
+                  </div>
+                  <footer class="card-footer">
+                    <a href="/perfumes/<%= perfume._id %>" class="card-footer-item">Detail</a>
+                  </footer>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+
+          <!-- Pagination -->
+          <% if (meta.totalPages> 1) { %>
+            <nav class="pagination is-centered mt-5" role="navigation" aria-label="pagination">
+              <% if (meta.currentPage> 1) { %>
+                <a class="pagination-previous" href="/?page=<%= meta.currentPage - 1 %>">Previous page</a>
+                <% } else { %>
+                  <a class="pagination-previous" disabled>Previous page</a>
+                  <% } %>
+
+                    <% if (meta.currentPage < meta.totalPages) { %>
+                      <a class="pagination-next" href="/?page=<%= meta.currentPage + 1 %>">Next page</a>
+                      <% } else { %>
+                        <a class="pagination-next" disabled>Next page</a>
+                        <% } %>
+
+                          <ul class="pagination-list">
+                            <% for (let i=1; i <=meta.totalPages; i++) { %>
+                              <li>
+                                <a class="pagination-link <%= i === meta.currentPage ? 'is-current' : '' %>"
+                                  href="/?page=<%= i %>">
+                                  <%= i %>
+                                </a>
+                              </li>
+                              <% } %>
+                          </ul>
+            </nav>
+            <% } %>
+        </div>
+      </section>
+
+
+     
+      <%- include('partials/footer') %>
+
+      
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const perfumeSearch = document.getElementById("perfumeSearch");
+          const brandFilter = document.getElementById("brandFilter");
+          const perfumeListContainer = document.getElementById("perfumeList");
+        
+          if (!perfumeListContainer) {
+            console.error("PerfumeList element not found.");
+            return;
+          }
+        
+          function fetchPerfumes() {
+            const perfumeName = perfumeSearch.value.trim();
+            const brand = brandFilter.value;
+            
+            const queryParams = new URLSearchParams();
+            if (perfumeName) queryParams.append("perfumeName", perfumeName);
+            if (brand) queryParams.append("brand", brand);
+        
+            const url = `/?${queryParams.toString()}`;
+            console.log("Fetching:", url);
+        
+            fetch(url)
+              .then(response => {
+                console.log("Response Status:", response.status);
+                if (!response.ok) throw new Error("Error loading data");
+                return response.text();
+              })
+              .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const newPerfumeList = doc.getElementById("perfumeList");
+        
+                if (newPerfumeList) {
+                  perfumeListContainer.innerHTML = newPerfumeList.innerHTML;
+                  console.log("Perfume list updated.");
+                } else {
+                  console.error("PerfumeList element not found.");
+                }
+              })
+              .catch(error => console.error("Error fetching data:", error));
+          }
+        
+          let debounceTimer;
+          perfumeSearch.addEventListener("input", function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchPerfumes, 300);
+          });
+        
+          brandFilter.addEventListener("change", fetchPerfumes);
+        });
+        
+        </script>
+        
+        
+        
+      </body>
+
+</html>

@@ -6,10 +6,12 @@ import { Perfume, PerfumeSchema } from './schemas/perfume.schema';
 import { Brand, BrandSchema } from '../brands/schemas/brand.schema';
 import { MembersModule } from '../members/members.module';
 import { JwtModule } from '@nestjs/jwt'; 
+import { Comment, CommentSchema } from 'src/comments/schemas/comment.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Perfume.name, schema: PerfumeSchema }]),
+    MongooseModule.forFeature([{ name: Perfume.name, schema: PerfumeSchema }, ]), 
+    MongooseModule.forFeature([  { name: Comment.name, schema: CommentSchema },]),
     MongooseModule.forFeature([{ name: Brand.name, schema: BrandSchema }]),
     MembersModule,
     JwtModule.register({

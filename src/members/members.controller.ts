@@ -1,42 +1,47 @@
-import { Controller, Get, Param, Patch, Body, UseGuards, Request  } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Request, Param, Query } from '@nestjs/common';
 import { MembersService } from './members.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/enums/role.enum';
 
 @Controller('members')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
 
-  /** 📌 Lấy danh sách tất cả thành viên (chỉ Admin) */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get('collectors')
-  async getAllMembers(@Request() req) {
-    return this.membersService.getAllMembers(req.user.sub);
+  async getAllMembers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.membersService.getAllMembers(Number(page), Number(limit));
   }
 
-  /**  Lấy thông tin một thành viên theo ID */
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getMemberById(@Param('id') id: string) {
     return this.membersService.getMemberById(id);
   }
 
-  /** Cập nhật thông tin cá nhân (chỉ chính user đó có quyền chỉnh sửa) */
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async updateMember(@Param('id') id: string, @Body() updateData: Partial<any>) {
     return this.membersService.updateMember(id, updateData);
   }
-  /**  Xóa mềm User (chỉ Admin mới xóa được) */
-  @UseGuards(JwtAuthGuard)
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Patch('delete/:userId')
-  async softDeleteUser(@Request() req, @Param('userId') userId: string) {
-    return this.membersService.softDeleteUser(req.user.sub, userId);
+  async softDeleteUser(@Param('userId') userId: string) {
+    return this.membersService.softDeleteUser(userId);
   }
 
-  /**  Đổi role thành Admin (chỉ Admin mới có quyền) */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Patch('promote/:userId')
-  async promoteToAdmin(@Request() req, @Param('userId') userId: string) {
-    return this.membersService.promoteToAdmin(req.user.sub, userId);
+  async promoteToAdmin(@Param('userId') userId: string) {
+    return this.membersService.promoteToAdmin(userId);
   }
 }

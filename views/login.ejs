@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+
+    <!-- Sử dụng Firebase phiên bản compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Login</h1>
+
+            <!-- Form đăng nhập bằng email/password -->
+            <form action="/auth/login" method="POST">
+                <div class="field">
+                    <label class="label">Email</label>
+                    <div class="control">
+                        <input class="input" type="email" name="email" required placeholder="Email">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Password</label>
+                    <div class="control">
+                        <input class="input" type="password" name="password" required placeholder="Password">
+                    </div>
+                </div>
+
+                <button type="submit" class="button is-primary">Login</button>
+            </form>
+
+            <!-- Đăng nhập bằng Google -->
+            <div class="mt-4">
+                <button onclick="loginWithGoogle()" class="button is-danger">Login with Google</button>
+            </div>
+
+            <% if (typeof errorMessage !=='undefined' && errorMessage) { %>
+                <div class="notification is-danger mt-4">
+                    <%= errorMessage %>
+                </div>
+                <% } %>
+        </div>
+    </section>
+
+    <script>
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8NXPq25JHUi0lqkZHhufQgUGUxL_V3fg",
+            authDomain: "perfumeshop-94c62.firebaseapp.com",
+            projectId: "perfumeshop-94c62",
+            storageBucket: "perfumeshop-94c62.firebasestorage.app",
+            messagingSenderId: "268913233073",
+            appId: "1:268913233073:web:2bc1e1369d8ce5fd2ce690",
+        };
+
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        async function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const idToken = await result.user.getIdToken();
+
+                const response = await fetch("/auth/firebase-login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idToken })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.cookie = `access_token=${data.access_token}; path=/; HttpOnly`;
+
+                    
+                        alert("Your password is automatically generated as '123456' go to Profile to change");
+                        window.location.href = "/";
+                    
+                } else {
+                    alert("Login failed: " + data.message);
+                }
+            } catch (error) {
+                console.error("Google login error:", error);
+                alert("Login failed!");
+            }
+        }
+    </script>
+
+</body>
+
+</html>

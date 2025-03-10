@@ -1,4 +1,5 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { InjectModel } from '@nestjs/mongoose';
@@ -31,30 +32,67 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { email: user.email, sub: user._id, isAdmin: user.isAdmin };
-    return { access_token: this.jwtService.sign(payload) };
+    const payload = { 
+      sub: user._id, 
+      email: user.email, 
+      role: user.isAdmin ? 'admin' : 'member'
+    };
+    
+    return { 
+      access_token: this.jwtService.sign(payload),
+      user, 
+    };
   }
+  
 
   async firebaseAuth(idToken: string) {
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
+
       let user = await this.memberModel.findOne({ email: decodedToken.email });
 
       if (!user) {
-        
+        const hashedPassword = await bcrypt.hash('123456', 10);
         user = new this.memberModel({
           email: decodedToken.email,
-          name: decodedToken.name || 'Unknown',
+          name: decodedToken.displayName || 'Unknown',
           firebaseUid: decodedToken.uid,
+          isAdmin: false,
+          password: hashedPassword,
         });
         await user.save();
       }
 
-      return { email: user.email, uid: user.firebaseUid };
+
+      const access_token = this.jwtService.sign(
+        {
+          sub: user._id as string, 
+          email: user.email,
+          isAdmin: user.isAdmin || false,
+        },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: '7d',
+        },
+      );
+      
+
+     
+      return {
+        user: {
+          _id: user._id, 
+          email: user.email,
+          uid: user.firebaseUid,
+          isAdmin: user.isAdmin || false,
+        },
+        access_token,
+      };
     } catch (error) {
       throw new UnauthorizedException('Invalid Firebase token');
     }
   }
+  
+
 
 
   async getProfile(userId: string) {
@@ -69,4 +107,28 @@ export class AuthService {
   async updateProfile(userId: string, updateData: Partial<Member>) {
     return await this.memberModel.findByIdAndUpdate(userId, updateData, { new: true });
   }
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await this.memberModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) throw new BadRequestException('Old password is incorrect');
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return { message: 'Password changed successfully' };
+  }
+
+  async logout(res: Response) {
+    
+    res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'strict' });
+    res.clearCookie('access_token', { httpOnly: true, secure: true, sameSite: 'strict' });
+
+    console.log(`User logged out and cookies removed`);
+
+    return res.json({ message: 'Logged out successfully' });
+}
 }

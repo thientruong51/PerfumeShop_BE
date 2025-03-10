@@ -1,0 +1,57 @@
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item has-text-white" href="/">
+        <strong>Perfume Shop</strong>
+      </a>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+    <div id="navbarMenu" class="navbar-menu">
+      <div class="navbar-end">
+        <% if (user) { %>
+          <a class="navbar-item has-text-white" href="/profile">Hello, <strong><%= user.name %></strong></a>
+          <form action="/auth/logout" method="POST" style="display: inline;">
+            <button type="submit" class="button is-danger is-light">logout</button>
+          </form>
+        <% } else { %>
+          <a class="navbar-item has-text-white" href="/login">Login</a>
+          <a class="navbar-item has-text-white" href="/register">Register</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const burger = document.querySelector('.navbar-burger');
+    const menu = document.getElementById(burger.dataset.target);
+    burger.addEventListener('click', () => {
+      burger.classList.toggle('is-active');
+      menu.classList.toggle('is-active');
+    });
+  });
+</script>
+
+<style>
+  .navbar.is-dark {
+    background-color: #1e1e1e;
+  }
+  .navbar-item:hover {
+    background-color: #2a2a2a;
+  }
+  .button {
+    background-color: #2a2a2a;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .button:hover {
+    background-color: #e74c3c;
+  }
+</style>

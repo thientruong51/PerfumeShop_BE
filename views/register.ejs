@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Perfume Shop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 500px;
+            margin-top: 50px;
+        }
+
+        .box {
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            color: #3273dc;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .button.is-primary {
+            width: 100%;
+            font-size: 1.2rem;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .field:not(:last-child) {
+            margin-bottom: 1rem;
+        }
+
+        .notification {
+            display: none;
+        }
+
+        .notification.is-visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="box">
+            <h1 class="title">Sign up for an account</h1>
+
+            {% if error %}
+            <div class="notification is-danger is-visible">
+                <button class="delete"></button>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="/auth/register" method="POST">
+                <div class="field">
+                    <label class="label">Username</label>
+                    <div class="control">
+                        <input class="input" type="text" name="name" placeholder="Enter your name" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Email</label>
+                    <div class="control">
+                        <input class="input" type="email" name="email" placeholder="Enter email" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Password</label>
+                    <div class="control">
+                        <input class="input" type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Confirm Password</label>
+                    <div class="control">
+                        <input class="input" type="password" name="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Year of birth</label>
+                    <div class="control">
+                        <input class="input" type="number" name="YOB" placeholder="Year of birth" min="1900" max="2025" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Sex</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select name="gender" required>
+                                <option value="true">Male</option>
+                                <option value="false">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <button type="submit" class="button is-primary">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

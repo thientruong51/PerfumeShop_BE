@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <h1 class="title">Admin Dashboard</h1>
+
+    <div class="tabs is-boxed">
+      <ul>
+        <li data-tab="brands"><a>Brands</a></li>
+        <li data-tab="perfumes"><a>Perfumes</a></li>
+      </ul>
+    </div>
+
+    <div id="brands" class="tab-content is-hidden">
+      <%- include('partials/brand') %>
+    </div>
+
+    <div id="perfumes" class="tab-content is-hidden">
+      <%- include('partials/perfume') %>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tabs ul li').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tabs ul li').forEach(t => t.classList.remove('is-active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('is-hidden'));
+        tab.classList.add('is-active');
+        document.getElementById(tab.dataset.tab).classList.remove('is-hidden');
+      });
+    });
+  });
+</script>
+</body>
+</html>

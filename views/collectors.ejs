@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <h1 class="title">Collectors</h1>
+
+    <!-- Members -->
+    <div id="members" class="tab-content">
+      
+      <table class="table is-fullwidth">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Year of Birth</th>
+            <th>Gender</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="membersTable">
+          <% members.forEach(member => { %>
+            <tr data-id="<%= member._id %>">
+              <td><%= member.name %></td>
+              <td><%= member.email %></td>
+              <td><%= member.isAdmin ? 'Admin' : 'Member' %></td>
+              <td><%= member.YOB %></td>
+              <td><%= member.gender ? 'Male' : 'Female' %></td>
+              <td><%= member.isDeleted ? 'Deleted' : 'Active' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      
+    </div>
+
+  </div>
+</section>
+
+
+
+
+  
+
+</body>
+</html>
