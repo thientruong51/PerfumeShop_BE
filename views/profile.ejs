@@ -1,92 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <!-- Bulma CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
 </head>
 <body>
-    <%- include('partials/navbar') %>
-    <section class="section">
-        <div class="container">
-            <div class="columns is-centered">
-                <div class="column is-half">
-                    <h1 class="title">Welcome, <%= user.name %></h1>
-                    <p class="subtitle">Here you can update your profile and change your password.</p>
-                    
-                   
-                    <div class="box">
-                        <h2 class="subtitle">Your Information</h2>
-                        <p><strong>Email:</strong> <%= user.email %></p>
-                        <p><strong>Name:</strong> <%= user.name %></p>
-                        <p><strong>Year of Birth:</strong> <%= user.YOB %></p>
-                        <p><strong>Gender:</strong> <%= user.gender ? 'Male' : 'Female' %></p>
-                    </div>
+  <%- include('partials/navbar') %>
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          <h1 class="title">Welcome, <%= user.name %></h1>
+          <p class="subtitle">Here you can update your profile and change your password.</p>
+          
+          <div class="box">
+            <h2 class="subtitle">Your Information</h2>
+            <p><strong>Email:</strong> <%= user.email %></p>
+            <p><strong>Name:</strong> <%= user.name %></p>
+            <p><strong>Year of Birth:</strong> <%= user.YOB %></p>
+            <p><strong>Gender:</strong> <%= user.gender ? 'Male' : 'Female' %></p>
+          </div>
 
-                 
-                    <div class="box">
-                        <h3 class="subtitle">Update Your Profile</h3>
-                        <form action="/profile/update" method="POST">
-                            <div class="field">
-                                <label class="label" for="name">Name:</label>
-                                <div class="control">
-                                    <input class="input" type="text" id="name" name="name" value="<%= user.name %>" required />
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="YOB">Year of Birth:</label>
-                                <div class="control">
-                                    <input class="input" type="number" id="YOB" name="YOB" value="<%= user.YOB %>" required />
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="gender">Gender:</label>
-                                <div class="control">
-                                    <div class="select">
-                                        <select id="gender" name="gender">
-                                            <option value="true" <%= user.gender ? 'selected' : '' %>>Male</option>
-                                            <option value="false" <%= !user.gender ? 'selected' : '' %>>Female</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field is-grouped">
-                                <div class="control">
-                                    <button class="button is-link">Update Profile</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
-                  
-                    <div class="box">
-                        <h3 class="subtitle">Change Password</h3>
-                        <form action="/profile/change-password" method="POST">
-                            <div class="field">
-                                <label class="label" for="oldPassword">Old Password:</label>
-                                <div class="control">
-                                    <input class="input" type="password" id="oldPassword" name="oldPassword" required />
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="newPassword">New Password:</label>
-                                <div class="control">
-                                    <input class="input" type="password" id="newPassword" name="newPassword" required />
-                                </div>
-                            </div>
-                            <div class="field is-grouped">
-                                <div class="control">
-                                    <button class="button is-link">Change Password</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+          <div class="box">
+            <h3 class="subtitle">Update Your Profile</h3>
+            <form action="/profile/update" method="POST">
+              <div class="field">
+                <label class="label" for="name">Name:</label>
+                <div class="control">
+                  <input class="input" type="text" id="name" name="name" value="<%= user.name %>" required />
                 </div>
-            </div>
+              </div>
+              <div class="field">
+                <label class="label" for="YOB">Year of Birth:</label>
+                <div class="control">
+                  <input class="input" type="number" id="YOB" name="YOB" value="<%= user.YOB %>" required />
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="gender">Gender:</label>
+                <div class="control">
+                  <div class="select">
+                    <select id="gender" name="gender">
+                      <option value="true" <%= user.gender ? 'selected' : '' %>>Male</option>
+                      <option value="false" <%= !user.gender ? 'selected' : '' %>>Female</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="field is-grouped">
+                <div class="control">
+                  <button class="button is-link">Update Profile</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        
+          <div class="box">
+            <h3 class="subtitle">Change Password</h3>
+            
+          
+            <div id="changePasswordNotification"></div>
+            
+           
+            <form id="changePasswordForm">
+              <div class="field">
+                <label class="label" for="oldPassword">Old Password:</label>
+                <div class="control">
+                  <input class="input" type="password" id="oldPassword" name="oldPassword" required />
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="newPassword">New Password:</label>
+                <div class="control">
+                  <input class="input" type="password" id="newPassword" name="newPassword" required />
+                </div>
+              </div>
+              <div class="field is-grouped">
+                <div class="control">
+                  <button class="button is-link" type="submit">Change Password</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
         </div>
-    </section>
-    <%- include('partials/footer') %>
+      </div>
+    </div>
+  </section>
+  <%- include('partials/footer') %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+     
+      document.querySelectorAll('.notification .delete').forEach(button => {
+        button.addEventListener('click', () => {
+          button.parentElement.remove();
+        });
+      });
+      
+      const changePasswordForm = document.getElementById('changePasswordForm');
+      const notificationDiv = document.getElementById('changePasswordNotification');
+      
+      changePasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const oldPassword = document.getElementById('oldPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        notificationDiv.innerHTML = ''; 
+        
+        try {
+          const response = await fetch('/profile/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ oldPassword, newPassword })
+          });
+          
+        
+          if (response.redirected) {
+            window.location.href = response.url;
+            return;
+          }
+          
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.message || 'Something went wrong!');
+          }
+        
+          notificationDiv.innerHTML = `<div class="notification is-success">
+            <button class="delete"></button>
+            Password changed successfully.
+          </div>`;
+          changePasswordForm.reset();
+        } catch (error) {
+          notificationDiv.innerHTML = `<div class="notification is-danger">
+            <button class="delete"></button>
+            ${error.message}
+          </div>`;
+        }
+        
+       
+        document.querySelectorAll('.notification .delete').forEach(button => {
+          button.addEventListener('click', () => {
+            button.parentElement.remove();
+          });
+        });
+        
+       
+        setTimeout(() => {
+          notificationDiv.innerHTML = '';
+        }, 3000);
+      });
+    });
+  </script>
 </body>
 </html>

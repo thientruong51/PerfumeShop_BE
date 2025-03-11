@@ -11,7 +11,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
-    origin: "http://localhost:3001", 
+    origin: "http://localhost:5173", 
     credentials: true, 
   });
 
@@ -51,7 +51,7 @@ async function bootstrap() {
   app.setViewEngine('ejs');
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(process.env.PORT ?? 3000);
 }
 
 bootstrap();

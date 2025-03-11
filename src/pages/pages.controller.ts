@@ -75,7 +75,39 @@ export class PagesController {
       filters: { perfumeName, brand },
     };
   }
+  @Get("/home/json")
+async homejson(
+    @Req() req: Request,
+    @Query("page") page = 1,
+    @Query("perfumeName") perfumeName = "",
+    @Query("brand") brand = ""
+  ) {
+    const limit = 8;
+    const currentPage = Math.max(Number(page), 1);
   
+    console.log("🔎 Query nhận được:", { perfumeName, brand, page });
+  
+    const result = await this.perfumesService.getAllPerfumesBySearch(
+      perfumeName.trim(),
+      brand.trim(), 
+      currentPage,
+      limit
+    );
+  
+    const allBrands = await this.perfumesService.getAllBrands();
+  
+    return {
+      perfumes: result.data,
+      meta: {
+        totalItems: result.total,
+        totalPages: result.totalPages,
+        currentPage,
+      },
+      brands: allBrands,
+      user: req.session.user,
+      filters: { perfumeName, brand },
+    };
+  }
   
 
   @Get('/login')
@@ -293,12 +325,56 @@ async collectorsPage(@Req() req: Request, @Query('page') page = 1) {
     };
   }
   
+  @Get('/perfumes/:id/json')
+  async perfumeDetailJson(
+    @Param('id') perfumeId: string,
+    @Query('page') page = 1,
+    @Query('error') errorMessage: string, 
+    @Query('success') successMessage: string, 
+    @Req() req: any,
+  ) {
+    const limit = 5;
+  
+    const [perfume, comments] = await Promise.all([
+      this.perfumesService.getPerfumeById(perfumeId),
+      this.commentsService.getPerfumeComments(perfumeId, Number(page), limit),
+    ]);
+  
+    if (!perfume) {
+      throw new Error('Perfume not found');
+    }
+  
+    const user = req.session.user || req.user || null;
+    const memberId = user ? user._id : null; 
+    const groupedComments = comments.data.reduce((acc, comment) => {
+      if (!acc[comment.rating]) acc[comment.rating] = [];
+      acc[comment.rating].push(comment);
+      return acc;
+    }, {} as Record<number, any[]>);
+  
+    return {
+      perfume,
+      comments: comments.data,
+      user,
+      memberId,
+      groupedComments,
+  
+      commentsMeta: {
+        totalPages: Math.ceil(comments.total / limit),
+        currentPage: Number(page),
+      },
+  
+      errorMessage,  
+      successMessage, 
+    };
+  }
+  
   @Post('/perfumes/:id/comments')
   async addComment(
     @Param('id') perfumeId: string,
     @Body() body: any,
     @Req() req: any,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     try {
       console.log('Body:', body);
@@ -307,18 +383,28 @@ async collectorsPage(@Req() req: Request, @Query('page') page = 1) {
       const { rating, content } = body;
   
       if (!rating || !content) {
-        return res.redirect(`/perfumes/${perfumeId}?error=Please enter complete information!`);
+        return res.status(400).json({ error: 'Please enter complete information!' });
       }
   
       await this.commentsService.addComment(userId, perfumeId, rating, content);
   
-      return res.redirect(`/perfumes/${perfumeId}?success=Comment added successfully!`);
-    } catch (error) {
+      return res.status(200).json({ 
+        success: true,
+        message: 'Comment added successfully!'
+      });
+    } catch (error: any) {
       console.error('Error adding comment:', error.message);
-      return res.redirect(`/perfumes/${perfumeId}?error=${encodeURIComponent(error.message || 'An error occurred!')}`);
+      return res.status(500).json({ error: error.message || 'An error occurred!' });
     }
   }
   
+  
+
+  @Get('/perfumes')
+async getAllPerfumesNotPage() {
+  return this.perfumesService.getAllPerfumesNotPage();
+}
+
 
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -342,6 +428,16 @@ async collectorsPage(@Req() req: Request, @Query('page') page = 1) {
   @Put('/members/:id')
   async updateMember(@Param('id') id: string, @Body() body: Partial<Member>) {
     return this.membersService.updateMember(id, body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('/collectors/json')
+  async getAllMembers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.membersService.getAllMembers(Number(page), Number(limit));
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -371,6 +467,17 @@ async collectorsPage(@Req() req: Request, @Query('page') page = 1) {
     const user = await this.membersService.getMemberById(userId);
     return { user };
   }
+  @UseGuards(JwtAuthGuard)
+@Get('/profile/json')
+async getProfileJson(@Req() req: any) {
+  const userId = req.user?.sub;  
+  if (!userId) {
+    throw new BadRequestException('User not authenticated');
+  }
+  const user = await this.membersService.getMemberById(userId);
+  return { user };
+}
+
 
   @UseGuards(JwtAuthGuard)
   @Post('/profile/update')
@@ -386,7 +493,7 @@ async collectorsPage(@Req() req: Request, @Query('page') page = 1) {
     return res.redirect('/profile');
   }
 
-  @UseGuards(JwtAuthGuard) 
+  @UseGuards(JwtAuthGuard)
   @Post('/profile/change-password')
   async changePassword(
     @Req() req: any,  
@@ -397,10 +504,15 @@ async collectorsPage(@Req() req: Request, @Query('page') page = 1) {
     if (!userId) {
       throw new BadRequestException('User not authenticated');
     }
-
+  
+    if (passwordData.oldPassword === passwordData.newPassword) {
+      throw new BadRequestException('New password must be different from old password');
+    }
+  
     await this.authService.changePassword(userId, passwordData.oldPassword, passwordData.newPassword);
     return res.redirect('/profile');
   }
+  
 }
 
 

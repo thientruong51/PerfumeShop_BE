@@ -2,28 +2,52 @@
 <table class="table is-fullwidth">
   <thead>
     <tr>
-      <th>Image</th><th>Name</th><th>Brand</th><th>Concentration</th><th>Ingredients</th>
-      <th>Description</th><th>Target Audience</th><th>Price</th><th>Volume</th><th>Actions</th>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Brand</th>
+      <th>Concentration</th>
+      <th>Ingredients</th>
+      <th>Description</th>
+      <th>Target Audience</th>
+      <th>Price</th>
+      <th>Volume</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody id="perfumesTable">
-    <% perfumes.forEach(perfume => { %>
+    <% perfumes.forEach(perfume=> { %>
       <tr data-id="<%= perfume._id %>">
         <td><img src="<%= perfume.uri %>" alt="<%= perfume.perfumeName %>" class="image is-64x64"></td>
-        <td><%= perfume.perfumeName %></td>
-        <td><%= perfume.brand %></td>
-        <td><%= perfume.concentration %></td>
-        <td><%= perfume.ingredients %></td>
-        <td><%= perfume.description %></td>
-        <td><%= perfume.targetAudience %></td>
-        <td><%= perfume.price %></td>
-        <td><%= perfume.volume %> ml</td>
+        <td>
+          <%= perfume.perfumeName %>
+        </td>
+        <td>
+          <%= perfume.brand %>
+        </td>
+        <td>
+          <%= perfume.concentration %>
+        </td>
+        <td>
+          <%= perfume.ingredients %>
+        </td>
+        <td>
+          <%= perfume.description %>
+        </td>
+        <td>
+          <%= perfume.targetAudience %>
+        </td>
+        <td>
+          <%= perfume.price %>
+        </td>
+        <td>
+          <%= perfume.volume %> ml
+        </td>
         <td>
           <button class="button is-small is-info editPerfumeBtn">Edit</button>
           <button class="button is-small is-danger deletePerfumeBtn">Delete</button>
         </td>
       </tr>
-    <% }) %>
+      <% }) %>
   </tbody>
 </table>
 <!-- Modal Perfume -->
@@ -45,7 +69,7 @@
       <input type="text" id="perfumeIngredients" class="input mb-2" placeholder="Ingredients">
       <input type="number" id="perfumeVolume" class="input mb-2" placeholder="Volume (ml)">
       <input type="text" id="perfumeTargetAudience" class="input mb-2" placeholder="Target Audience">
-      
+
     </section>
     <footer class="modal-card-foot">
       <button class="button is-success" id="savePerfumeBtn">Save</button>
@@ -56,76 +80,59 @@
 
 
 <script>
- document.addEventListener('DOMContentLoaded', async () => {
-   
+  document.addEventListener('DOMContentLoaded', async () => {
+
     const modals = {
-        perfume: document.getElementById('perfumeModal')
+      perfume: document.getElementById('perfumeModal')
     };
 
     const openModal = (type) => modals[type]?.classList.add('is-active');
     const closeModals = () => Object.values(modals).forEach(modal => modal.classList.remove('is-active'));
 
     document.querySelectorAll('.closeModal, .cancelModal').forEach(btn => {
-        btn.addEventListener('click', closeModals);
+      btn.addEventListener('click', closeModals);
     });
 
-   
+
     const resetForm = (fields) => {
-        fields.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) element.value = '';
-        });
+      fields.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.value = '';
+      });
     };
 
     const fillForm = (data) => {
-        Object.entries(data).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.value = value;
-        });
+      Object.entries(data).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.value = value;
+      });
     };
 
     const fetchAllPerfumes = async () => {
-    try {
-        let allPerfumes = [];
-        let page = 1;
-        let totalPages = 1;
+      try {
+        const response = await fetch(`/perfumes`, { credentials: 'include' });
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const result = await response.json();
 
-        do {
-            const response = await fetch(`/perfumes?page=${page}&limit=50`, { credentials: 'include' });
-
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-            const result = await response.json();
-
-            if (!result.data?.data || !Array.isArray(result.data.data)) {
-                throw new Error("Invalid data format from API");
-            }
-
-            allPerfumes = [...allPerfumes, ...result.data.data]; 
-            totalPages = result.data.totalPages;
-            page++;
-        } while (page <= totalPages);
-
-        console.log(" Loaded full perfume list:", allPerfumes);
-        return allPerfumes;
-    } catch (error) {
-        console.error(" Fetch all perfumes error:", error);
-        alert("Error loading country list!");
+        const perfumesArray = Array.isArray(result.data) ? result.data : [];
+        console.log("Loaded full perfume list:", perfumesArray);
+        return perfumesArray;
+      } catch (error) {
+        console.error("Fetch all perfumes error:", error);
+        alert("Error loading perfume list!");
         return [];
-    }
-};
-
-
+      }
+    };
 
     const updateTable = async () => {
-    const perfumes = await fetchAllPerfumes();
-    if (!Array.isArray(perfumes)) {
-        console.error(' Data received is not an array:', perfumes);
+      const perfumes = await fetchAllPerfumes();
+      if (!Array.isArray(perfumes)) {
+        console.error('Data received is not an array:', perfumes);
         return;
-    }
+      }
 
-    const tbody = document.getElementById('perfumesTable');
-    tbody.innerHTML = perfumes.map(perfume => `
+      const tbody = document.getElementById('perfumesTable');
+      tbody.innerHTML = perfumes.map(perfume => `
         <tr data-id="${perfume._id}">
             <td><img src="${perfume.uri}" alt="${perfume.perfumeName}" class="image is-64x64"></td>
             <td>${perfume.perfumeName}</td>
@@ -143,100 +150,100 @@
         </tr>
     `).join('');
 
-    attachEventListeners();
-};
+      attachEventListeners();
+    };
 
 
     const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this perfume??')) return;
-        try {
-            const response = await fetch(`/perfumes/${id}`, {
-                method: 'DELETE',
-                credentials: 'include' 
-            });
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            alert('Xóa thành công!');
-            updateTable();
-        } catch (error) {
-            console.error('❌ Delete error:', error);
-            alert('Error deleting, please try again!');
-        }
+      if (!confirm('Are you sure you want to delete this perfume??')) return;
+      try {
+        const response = await fetch(`/perfumes/${id}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        alert('Xóa thành công!');
+        updateTable();
+      } catch (error) {
+        console.error('❌ Delete error:', error);
+        alert('Error deleting, please try again!');
+      }
     };
 
     const handleSave = async () => {
-        const id = document.getElementById('perfumeId')?.value;
-        const payload = {
-            perfumeName: document.getElementById('perfumeName')?.value || '',
-            uri: document.getElementById('perfumeUri')?.value || '',
-            price: Number(document.getElementById('perfumePrice')?.value) || 0,
-            concentration: document.getElementById('perfumeConcentration')?.value || '',
-            description: document.getElementById('perfumeDescription')?.value || '',
-            ingredients: document.getElementById('perfumeIngredients')?.value || '',
-            volume: Number(document.getElementById('perfumeVolume')?.value) || 0,
-            targetAudience: document.getElementById('perfumeTargetAudience')?.value || '',
-            brand: document.getElementById('perfumeBrand')?.value || ''
-        };
+      const id = document.getElementById('perfumeId')?.value;
+      const payload = {
+        perfumeName: document.getElementById('perfumeName')?.value || '',
+        uri: document.getElementById('perfumeUri')?.value || '',
+        price: Number(document.getElementById('perfumePrice')?.value) || 0,
+        concentration: document.getElementById('perfumeConcentration')?.value || '',
+        description: document.getElementById('perfumeDescription')?.value || '',
+        ingredients: document.getElementById('perfumeIngredients')?.value || '',
+        volume: Number(document.getElementById('perfumeVolume')?.value) || 0,
+        targetAudience: document.getElementById('perfumeTargetAudience')?.value || '',
+        brand: document.getElementById('perfumeBrand')?.value || ''
+      };
 
-        try {
-            const response = await fetch(id ? `/perfumes/${id}` : '/perfumes', {
-                method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(payload)
-            });
+      try {
+        const response = await fetch(id ? `/perfumes/${id}` : '/perfumes', {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
 
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-            const result = await response.json();
-            alert(result.message);
-            closeModals();
-            updateTable();
-        } catch (error) {
-            console.error(' Fetch error:', error);
-            alert('Error sending request, please try again!');
-        }
+        const result = await response.json();
+        alert(result.message);
+        closeModals();
+        updateTable();
+      } catch (error) {
+        console.error(' Fetch error:', error);
+        alert('Error sending request, please try again!');
+      }
     };
 
     const attachEventListeners = () => {
-        document.querySelectorAll('.editPerfumeBtn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const row = e.target.closest('tr');
-                fillForm({
-                    perfumeId: row.dataset.id,
-                    perfumeUri: row.children[0].querySelector('img').src,
-                    perfumeName: row.children[1].innerText,
-                    perfumeBrand: row.children[2].innerText,
-                    perfumeConcentration: row.children[3].innerText,
-                    perfumeIngredients: row.children[4].innerText,
-                    perfumeDescription: row.children[5].innerText,
-                    perfumeTargetAudience: row.children[6].innerText,
-                    perfumePrice: row.children[7].innerText,
-                    perfumeVolume: parseInt(row.children[8].innerText)
-                });
-                openModal('perfume');
-            });
+      document.querySelectorAll('.editPerfumeBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const row = e.target.closest('tr');
+          fillForm({
+            perfumeId: row.dataset.id,
+            perfumeUri: row.children[0].querySelector('img').src,
+            perfumeName: row.children[1].innerText,
+            perfumeBrand: row.children[2].innerText,
+            perfumeConcentration: row.children[3].innerText,
+            perfumeIngredients: row.children[4].innerText,
+            perfumeDescription: row.children[5].innerText,
+            perfumeTargetAudience: row.children[6].innerText,
+            perfumePrice: row.children[7].innerText,
+            perfumeVolume: parseInt(row.children[8].innerText)
+          });
+          openModal('perfume');
         });
+      });
 
-        document.querySelectorAll('.deletePerfumeBtn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.target.closest('tr')?.dataset.id;
-                if (id) handleDelete(id);
-            });
+      document.querySelectorAll('.deletePerfumeBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.target.closest('tr')?.dataset.id;
+          if (id) handleDelete(id);
         });
+      });
     };
 
     document.getElementById('addPerfumeBtn')?.addEventListener('click', () => {
-        resetForm([
-            'perfumeId', 'perfumeName', 'perfumeUri', 'perfumePrice', 'perfumeConcentration',
-            'perfumeDescription', 'perfumeIngredients', 'perfumeVolume', 'perfumeTargetAudience', 'perfumeBrand'
-        ]);
-        openModal('perfume');
+      resetForm([
+        'perfumeId', 'perfumeName', 'perfumeUri', 'perfumePrice', 'perfumeConcentration',
+        'perfumeDescription', 'perfumeIngredients', 'perfumeVolume', 'perfumeTargetAudience', 'perfumeBrand'
+      ]);
+      openModal('perfume');
     });
 
     document.getElementById('savePerfumeBtn')?.addEventListener('click', handleSave);
 
-    await updateTable(); 
-});
+    await updateTable();
+  });
 
 
 </script>

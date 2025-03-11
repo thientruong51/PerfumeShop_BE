@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,18 +12,15 @@
       background-color: #121212;
       color: #e0e0e0;
     }
-
     .navbar,
     .footer {
       background-color: #1e1e1e;
     }
-
     .box {
       background-color: #1e1e1e;
       color: #e0e0e0;
       border-radius: 12px;
     }
-
     .input,
     .textarea,
     .select select {
@@ -32,26 +28,21 @@
       color: #e0e0e0;
       border: none;
     }
-
     .input::placeholder,
     .textarea::placeholder {
       color: #888;
     }
-
     .button.is-primary {
       background-color: #6200ee;
       border-color: #6200ee;
     }
-
     .button.is-primary:hover {
       background-color: #3700b3;
       border-color: #3700b3;
     }
-
     a {
       color: #bb86fc;
     }
-
     a:hover {
       color: #d8b4fe;
     }
@@ -61,177 +52,183 @@
 <body>
   <%- include('partials/navbar') %>
 
-
-    <section class="section">
-      <div class="container">
-        <h1 class="title">
-          <%= perfume.perfumeName %>
-        </h1>
-        <div class="columns">
-          <div class="column is-half">
-            <img src="<%= perfume.uri %>" alt="<%= perfume.perfumeName %>" class="image">
-          </div>
-          <div class="column is-half">
-            <p><strong>Brand:</strong>
-              <%= perfume.brand %>
-            </p>
-            <p><strong>Concentration:</strong>
-              <%= perfume.concentration %>
-            </p>
-            <p><strong>Description:</strong>
-              <%= perfume.description %>
-            </p>
-            <p><strong>Ingredients:</strong>
-              <%= perfume.ingredients %>
-            </p>
-            <p><strong>Volume:</strong>
-              <%= perfume.volume %>ml
-            </p>
-            <p><strong>Target Audience:</strong>
-              <%= perfume.targetAudience %>
-            </p>
-            <p class="is-size-3 has-text-weight-bold has-text-danger">
-              <strong>Price:</strong> $<%= perfume.price %>
-            </p>
-          </div>
+  <section class="section">
+    <div class="container">
+      <h1 class="title"><%= perfume.perfumeName %></h1>
+      <div class="columns">
+        <div class="column is-half">
+          <img src="<%= perfume.uri %>" alt="<%= perfume.perfumeName %>" class="image">
         </div>
-       
-
-                <div class="box">
-
-                  <h2 class="title is-4">Comments</h2>
-                  <% if (errorMessage) { %>
-                    <div class="notification is-danger">
-                      <button class="delete"></button>
-                      <%= errorMessage %>
-                    </div>
-                    <% } %>
-          
-                      <% if (successMessage) { %>
-                        <div class="notification is-success">
-                          <button class="delete"></button>
-                          <%= successMessage %>
-                        </div>
-                        <% } %>
-
-                  <% if (memberId) { %>
-                    <form action="/perfumes/<%= perfume._id %>/comments" method="POST">
-                      <div class="field">
-                        <label class="label">Your Review</label>
-                        <div class="control">
-                          <textarea class="textarea" name="content" placeholder="Write your comment here..."
-                            required></textarea>
-                        </div>
-                      </div>
-
-                      <div class="field">
-                        <label class="label">Rating</label>
-                        <div class="control">
-                          <div class="select">
-                            <select name="rating" required>
-                              <option value="" disabled selected>Select rating</option>
-                              <option value="1">⭐ 1</option>
-                              <option value="2">⭐⭐ 2</option>
-                              <option value="3">⭐⭐⭐ 3</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="field">
-                        <div class="control">
-                          <button class="button is-primary" type="submit">
-                            Submit Review
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                    <% } else { %>
-                      <p>You need to <a href="/login">login</a> to post a comment.</p>
-                      <% } %>
-
-                        <hr>
-
-                        <% if (comments.length===0) { %>
-                          <p>No comments yet. Be the first to review!</p>
-                          <% } else { %>
-
-
-                            <div class="tabs is-boxed">
-                              <ul>
-                                <% Object.keys(groupedComments).sort().reverse().forEach(rating=> { %>
-                                  <li data-tab="rating-<%= rating %>">
-                                    <a>⭐ <%= rating %>/3</a>
-                                  </li>
-                                  <% }) %>
-                              </ul>
-                            </div>
-
-
-                            <div class="tab-content">
-                              <% Object.keys(groupedComments).sort().reverse().forEach(rating=> { %>
-                                <div class="tab-pane" id="rating-<%= rating %>" style="display: none;">
-                                  <% groupedComments[rating].forEach(comment=> { %>
-                                    <article class="media">
-                                      <div class="media-content">
-                                        <div class="content">
-                                          <p>
-                                            <strong>
-                                              <%= comment.author.fullName %>
-                                            </strong>
-                                            <small>
-                                              <%= new Date(comment.createdAt).toLocaleDateString() %>
-                                            </small>
-                                            <br>
-                                            <%= comment.content %>
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </article>
-                                    <% }) %>
-                                </div>
-                                <% }) %>
-                            </div>
-
-                            <% } %>
-                </div>
+        <div class="column is-half">
+          <p><strong>Brand:</strong> <%= perfume.brand %></p>
+          <p><strong>Concentration:</strong> <%= perfume.concentration %></p>
+          <p><strong>Description:</strong> <%= perfume.description %></p>
+          <p><strong>Ingredients:</strong> <%= perfume.ingredients %></p>
+          <p><strong>Volume:</strong> <%= perfume.volume %>ml</p>
+          <p><strong>Target Audience:</strong> <%= perfume.targetAudience %></p>
+          <p class="is-size-3 has-text-weight-bold has-text-danger">
+            <strong>Price:</strong> $<%= perfume.price %>
+          </p>
+        </div>
       </div>
-    </section>
 
-    <%- include('partials/footer') %>
+      <div class="box">
+        <h2 class="title is-4">Comments</h2>
+        <% if (errorMessage) { %>
+          <div class="notification is-danger">
+            <button class="delete"></button>
+            <%= errorMessage %>
+          </div>
+        <% } %>
+        <% if (successMessage) { %>
+          <div class="notification is-success">
+            <button class="delete"></button>
+            <%= successMessage %>
+          </div>
+        <% } %>
 
-      <script>
-        // Xử lý chuyển tab
-        document.querySelectorAll('.tabs ul li').forEach(tab => {
-          tab.addEventListener('click', function () {
-            document.querySelectorAll('.tabs ul li').forEach(t => t.classList.remove('is-active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-
-            this.classList.add('is-active');
-            document.getElementById(this.getAttribute('data-tab')).style.display = 'block';
-          });
-        });
-
-        document.querySelector('.tabs ul li')?.click();
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('.notification .delete').forEach(button => {
-            button.addEventListener('click', () => {
-              button.parentElement.remove();
+        <% if (memberId) { %>
+          <% 
+            // Kiểm tra xem user đã comment chưa
+            let hasCommented = false;
+            comments.forEach(comment => { 
+              if (comment.author && comment.author._id == memberId) { 
+                hasCommented = true; 
+              } 
             });
-          });
+          %>
+          <% if (hasCommented) { %>
+            <p>You have commented already.</p>
+          <% } else { %>
+            <!-- Sử dụng class "comment-form" để xử lý submit bằng JavaScript -->
+            <form class="comment-form">
+              <div class="field">
+                <label class="label">Your Review</label>
+                <div class="control">
+                  <textarea class="textarea" name="content" placeholder="Write your comment here..." required></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Rating</label>
+                <div class="control">
+                  <div class="select">
+                    <select name="rating" required>
+                      <option value="" disabled selected>Select rating</option>
+                      <option value="1">⭐ 1</option>
+                      <option value="2">⭐⭐ 2</option>
+                      <option value="3">⭐⭐⭐ 3</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="control">
+                  <button class="button is-primary" type="submit">
+                    Submit Review
+                  </button>
+                </div>
+              </div>
+            </form>
+          <% } %>
+        <% } else { %>
+          <p>You need to <a href="/login">login</a> to post a comment.</p>
+        <% } %>
 
-          // Tự động ẩn thông báo sau 3 giây
-          setTimeout(() => {
-            document.querySelectorAll('.notification').forEach(notification => {
-              notification.remove();
-            });
-          }, 3000);
+        <hr>
+
+        <% if (comments.length === 0) { %>
+          <p>No comments yet. Be the first to review!</p>
+        <% } else { %>
+          <div class="tabs is-boxed">
+            <ul>
+              <% Object.keys(groupedComments).sort().reverse().forEach(rating => { %>
+                <li data-tab="rating-<%= rating %>">
+                  <a>⭐ <%= rating %>/3</a>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+
+          <div class="tab-content">
+            <% Object.keys(groupedComments).sort().reverse().forEach(rating => { %>
+              <div class="tab-pane" id="rating-<%= rating %>" style="display: none;">
+                <% groupedComments[rating].forEach(comment => { %>
+                  <article class="media">
+                    <div class="media-content">
+                      <div class="content">
+                        <p>
+                          <strong><%= comment.author.name %></strong>
+                          <small><%= new Date(comment.createdAt).toLocaleDateString() %></small>
+                          <br>
+                          <%= comment.content %>
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                <% }) %>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    // Xử lý chuyển tab
+    document.querySelectorAll('.tabs ul li').forEach(tab => {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tabs ul li').forEach(t => t.classList.remove('is-active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+        this.classList.add('is-active');
+        document.getElementById(this.getAttribute('data-tab')).style.display = 'block';
+      });
+    });
+    document.querySelector('.tabs ul li')?.click();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.notification .delete').forEach(button => {
+        button.addEventListener('click', () => {
+          button.parentElement.remove();
         });
-      </script>
+      });
+      // Tự động ẩn thông báo sau 3 giây
+      setTimeout(() => {
+        document.querySelectorAll('.notification').forEach(notification => {
+          notification.remove();
+        });
+      }, 3000);
+    });
 
-
+    // Xử lý submit comment bằng JavaScript
+    document.querySelector('.comment-form')?.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      // Chuyển đổi dữ liệu form sang đối tượng JSON
+      const data = Object.fromEntries(formData.entries());
+      try {
+        const response = await fetch('/perfumes/<%= perfume._id %>/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+         
+          window.location.href = '/perfumes/<%= perfume._id %>';
+        } else {
+          alert('Error: ' + (result.error || 'Comment failed!'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('An error occurred while submitting your comment.');
+      }
+    });
+  </script>
 </body>
-
 </html>

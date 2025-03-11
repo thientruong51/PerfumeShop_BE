@@ -86,6 +86,11 @@ export class PerfumesService {
   
   
   
+  async getAllPerfumesNotPage() {
+    const query: Record<string, any> = {};
+    const perfumes = await this.perfumeModel.find(query).sort({ createdAt: -1 }).exec();
+    return { data: perfumes };
+  }
   
   
   async getAllBrands() {

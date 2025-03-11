@@ -28,37 +28,39 @@ export class AuthController {
   }
   
   @Post('/login')
-async login(
-  @Body('email') email: string,
-  @Body('password') password: string,
-  @Res() res: Response,
-  @Session() session: Record<string, any>
-) {
-  try {
-    const { user, access_token } = await this.authService.login(email, password);
-
-    if (!user || !access_token) {
-      throw new Error('Wrong email or password.');
+  async login(
+    @Body('email') email: string,
+    @Body('password') password: string,
+    @Res({ passthrough: true }) res: Response,
+    @Session() session: Record<string, any>
+  ) {
+    try {
+      const { user, access_token } = await this.authService.login(email, password);
+  
+      if (!user || !access_token) {
+        throw new Error('Wrong email or password.');
+      }
+  
+      res.cookie('access_token', access_token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+  
+      session.user = user;
+  
+      
+      return res.status(200).json({
+        redirectUrl: user.isAdmin ? '/dashboard' : '/',
+        user,
+        access_token,
+      });
+    } catch (error: any) {
+      console.error('Login error:', error.message);
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-
-
-    res.cookie('access_token', access_token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, 
-    });
-
-   
-    session.user = user;
-
-   
-    return res.redirect(user.isAdmin ? '/dashboard' : '/');
-
-  } catch (error: any) {
-    console.error(' Login error:', error.message);
-    return res.redirect('/login?error=Invalid%20credentials');
   }
-}
+  
 
   
 
@@ -117,6 +119,10 @@ async logout(@Req() req: Request, @Res() res: Response) {
     return res.redirect('/login');
 }
 
-
+@UseGuards(JwtAuthGuard)
+  @Get('me')
+  getProfile(@Req() req: Request) {
+    return req.user;
+  }
 
 }

@@ -16,7 +16,7 @@
   </tbody>
 </table>
 
-<!-- Modal Add Brand -->
+
 <div class="modal" id="addBrandModal">
   <div class="modal-background closeModal"></div>
   <div class="modal-card">
@@ -34,7 +34,7 @@
   </div>
 </div>
 
-<!-- Modal Edit Brand -->
+
 <div class="modal" id="editBrandModal">
   <div class="modal-background closeModal"></div>
   <div class="modal-card">
@@ -54,13 +54,13 @@
 </div>
 
 <script>
-  // Open Add Brand Modal
+  
   document.getElementById('addBrandBtn').addEventListener('click', () => {
     document.getElementById('newBrandName').value = '';
     document.getElementById('addBrandModal').classList.add('is-active');
   });
 
-  // Save New Brand
+ 
   document.getElementById('saveNewBrandBtn').addEventListener('click', async () => {
     const brandName = document.getElementById('newBrandName').value.trim();
     if (!brandName) return alert('Brand name cannot be empty.');
@@ -73,7 +73,7 @@
     location.reload();
   });
 
-  // Open Edit Brand Modal
+ 
   document.querySelectorAll('.editBrandBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const row = e.target.closest('tr');
@@ -83,7 +83,7 @@
     });
   });
 
-  // Save Edited Brand
+ 
   document.getElementById('saveEditBrandBtn').addEventListener('click', async () => {
     const id = document.getElementById('editBrandId').value;
     const brandName = document.getElementById('editBrandName').value.trim();
@@ -97,7 +97,7 @@
     location.reload();
   });
 
-  // Delete Brand
+  
   document.querySelectorAll('.deleteBrandBtn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       if (confirm('Delete this brand?')) {
@@ -107,7 +107,7 @@
     });
   });
 
-  // Close Modals
+  
   document.querySelectorAll('.closeModal, .cancelModal').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('is-active'));
